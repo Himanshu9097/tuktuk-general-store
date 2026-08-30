@@ -185,7 +185,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F9F8F4] text-[#2D3A31] flex flex-col font-sans antialiased selection:bg-[#C27B66] selection:text-white relative">
+    <div className="h-[100dvh] w-full overflow-hidden bg-[#F9F8F4] text-[#2D3A31] flex flex-col font-sans antialiased selection:bg-[#C27B66] selection:text-white relative">
       {/* Mandatory Tactile Paper Grain Overlay */}
       <div
         className="pointer-events-none fixed inset-0 z-50 opacity-[0.018]"
@@ -201,7 +201,7 @@ export default function App() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 px-3.5 sm:px-6 py-4 max-w-5xl mx-auto w-full relative z-10">
+      <main className="flex-1 px-3.5 sm:px-6 py-4 max-w-5xl mx-auto w-full relative z-10 overflow-y-auto">
         {activeTab === 'calculator' && (
           <CalculatorScreen
             products={products}

@@ -10,9 +10,86 @@ import {
   Sparkles,
   Leaf
 } from 'lucide-react';
+import { useSwipeable } from 'react-swipeable';
 import { Product, ProductCategory, AppSettings } from '../types';
 import { triggerHaptic } from '../lib/storage';
 import { transliterateEnglishToHindi } from '../lib/transliteration';
+
+interface SwipeableProductCardProps {
+  p: Product;
+  isCurrent: boolean;
+  onSelectAndCalculate: (p: Product) => void;
+  openEditModal: (p: Product, e: React.MouseEvent | Event) => void;
+  confirmDelete: (e: React.MouseEvent | Event, p: Product) => void;
+}
+
+const SwipeableProductCard: React.FC<SwipeableProductCardProps> = ({
+  p,
+  isCurrent,
+  onSelectAndCalculate,
+  openEditModal,
+  confirmDelete,
+}) => {
+  const handlers = useSwipeable({
+    onSwipedLeft: (e) => {
+      triggerHaptic();
+      openEditModal(p, e.event as Event);
+    },
+    onSwipedRight: (e) => {
+      triggerHaptic();
+      confirmDelete(e.event as Event, p);
+    },
+    trackMouse: false,
+    preventScrollOnSwipe: true,
+  });
+
+  return (
+    <div
+      {...handlers}
+      id={`product-card-${p.id}`}
+      onClick={() => onSelectAndCalculate(p)}
+      className={`w-full text-left p-4 rounded-3xl border transition-all duration-300 cursor-pointer active:scale-[0.99] flex items-center justify-between gap-3 shadow-botanical-sm hover:-translate-y-0.5 ${
+        isCurrent
+          ? 'bg-[#F2F0EB]/90 border-[#8C9A84] ring-2 ring-[#8C9A84]/30'
+          : 'bg-white hover:bg-[#F9F8F4] border-[#E6E2DA]'
+      }`}
+    >
+      <div className="flex-1 min-w-0 pointer-events-none">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="font-serif-display font-bold text-base text-[#2D3A31] truncate">
+            {p.name}
+          </span>
+          {p.hindiName && (
+            <span className="text-xs text-[#7A8A7E] font-medium bg-[#F2F0EB] px-2 py-0.5 rounded-full border border-[#E6E2DA]">
+              {p.hindiName}
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-2 mt-1.5">
+          <span className="text-[10px] font-sans font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#F2F0EB] text-[#5B6D61] border border-[#E6E2DA]">
+            {p.category}
+          </span>
+          {isCurrent && (
+            <span className="text-[10px] font-bold text-[#8C9A84] flex items-center gap-0.5 uppercase tracking-widest">
+              <Check className="w-3 h-3" /> Selected
+            </span>
+          )}
+        </div>
+      </div>
+
+      <div className="flex items-center gap-3 pointer-events-none">
+        <div className="text-right">
+          <span className="text-[10px] text-[#7A8A7E] font-bold uppercase tracking-widest block leading-none">
+            Rate / kg
+          </span>
+          <span className="font-serif text-xl font-bold text-[#2D3A31] tracking-tight">
+            ₹{p.pricePerKg}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 interface ProductsScreenProps {
   products: Product[];
@@ -108,8 +185,8 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({
     setIsAddModalOpen(true);
   };
 
-  const openEditModal = (product: Product, e: React.MouseEvent) => {
-    e.stopPropagation();
+  const openEditModal = (product: Product, e: React.MouseEvent | Event) => {
+    e.stopPropagation?.();
     if (settings.hapticFeedback) triggerHaptic();
     setEditingProduct(product);
     setFormName(product.name);
@@ -155,8 +232,8 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({
     }
   };
 
-  const confirmDelete = (e: React.MouseEvent, product: Product) => {
-    e.stopPropagation();
+  const confirmDelete = (e: React.MouseEvent | Event, product: Product) => {
+    e.stopPropagation?.();
     if (settings.hapticFeedback) triggerHaptic();
     setDeletingProduct(product);
   };
@@ -254,79 +331,18 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({
             </button>
           </div>
         ) : (
-          filteredProducts.map((p) => {
-            const isCurrent = selectedProduct.id === p.id;
-            return (
-              <div
-                key={p.id}
-                id={`product-card-${p.id}`}
-                onClick={() => {
-                  if (settings.hapticFeedback) triggerHaptic();
-                  onSelectAndCalculate(p);
-                }}
-                className={`w-full text-left p-4 rounded-3xl border transition-all duration-300 cursor-pointer active:scale-[0.99] flex items-center justify-between gap-3 shadow-botanical-sm hover:-translate-y-0.5 ${
-                  isCurrent
-                    ? 'bg-[#F2F0EB]/90 border-[#8C9A84] ring-2 ring-[#8C9A84]/30'
-                    : 'bg-white hover:bg-[#F9F8F4] border-[#E6E2DA]'
-                }`}
-              >
-                {/* Left info */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-serif-display font-bold text-base text-[#2D3A31] truncate">
-                      {p.name}
-                    </span>
-                    {p.hindiName && (
-                      <span className="text-xs text-[#7A8A7E] font-medium bg-[#F2F0EB] px-2 py-0.5 rounded-full border border-[#E6E2DA]">
-                        {p.hindiName}
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2 mt-1.5">
-                    <span className="text-[10px] font-sans font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#F2F0EB] text-[#5B6D61] border border-[#E6E2DA]">
-                      {p.category}
-                    </span>
-                    {isCurrent && (
-                      <span className="text-[10px] font-bold text-[#8C9A84] flex items-center gap-0.5 uppercase tracking-widest">
-                        <Check className="w-3 h-3" /> Selected
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                {/* Right Price & Actions */}
-                <div className="flex items-center gap-3">
-                  <div className="text-right">
-                    <span className="text-[10px] text-[#7A8A7E] font-bold uppercase tracking-widest block leading-none">
-                      Rate / kg
-                    </span>
-                    <span className="font-serif text-xl font-bold text-[#2D3A31] tracking-tight">
-                      ₹{p.pricePerKg}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-1 pl-2.5 border-l border-[#E6E2DA]">
-                    <button
-                      id={`btn-edit-${p.id}`}
-                      onClick={(e) => openEditModal(p, e)}
-                      className="p-2 rounded-full bg-[#F2F0EB] hover:bg-[#E6E2DA] active:scale-95 text-[#2D3A31] border border-[#E6E2DA] transition"
-                      title="Edit Price/Name"
-                    >
-                      <Edit3 className="w-3.5 h-3.5" strokeWidth={1.5} />
-                    </button>
-                    <button
-                      id={`btn-delete-${p.id}`}
-                      onClick={(e) => confirmDelete(e, p)}
-                      className="p-2 rounded-full bg-[#F2F0EB] hover:bg-rose-50 active:scale-95 text-[#7A8A7E] hover:text-rose-600 border border-[#E6E2DA] transition"
-                      title="Delete Product"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" strokeWidth={1.5} />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            );
-          })
+          filteredProducts.map((p) => (
+            <SwipeableProductCard
+              key={p.id}
+              p={p}
+              isCurrent={selectedProduct.id === p.id}
+              onSelectAndCalculate={(prod) => {
+                onSelectAndCalculate(prod);
+              }}
+              openEditModal={openEditModal}
+              confirmDelete={confirmDelete}
+            />
+          ))
         )}
       </div>
 

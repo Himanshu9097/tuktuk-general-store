@@ -141,15 +141,6 @@ export const CalculatorScreen: React.FC<CalculatorScreenProps> = ({
     setTimeout(() => setIsSaved(false), 2000);
   };
 
-  const handleSpeak = () => {
-    if (settings.hapticFeedback) triggerHaptic();
-    const textToSpeak =
-      mode === 'PRICE_TO_WEIGHT'
-        ? `${selectedProduct.name}. Give ${display.main} grams`
-        : `${selectedProduct.name}. Charge ${display.main}`;
-    announceResult(textToSpeak);
-  };
-
   const handleCopy = () => {
     if (settings.hapticFeedback) triggerHaptic();
     const textToCopy =
@@ -263,16 +254,6 @@ export const CalculatorScreen: React.FC<CalculatorScreenProps> = ({
             
             {/* Action buttons */}
             <div className="flex items-center gap-1.5">
-              <button
-                id="btn-speak-result"
-                onClick={handleSpeak}
-                disabled={!result.isValid}
-                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 active:scale-90 text-white disabled:opacity-25 transition flex items-center justify-center border border-white/10"
-                title="Speak result in audio"
-                aria-label="Speak calculation result"
-              >
-                <Volume2 className="w-3.5 h-3.5 text-[#8C9A84]" strokeWidth={1.5} />
-              </button>
               <button
                 id="btn-copy-result"
                 onClick={handleCopy}
