@@ -4,13 +4,13 @@ import {
   Search, 
   Edit3, 
   Trash2, 
-  Check, 
-  X,
   Languages,
   Sparkles,
-  Leaf
+  Leaf,
+  Edit3,
+  Trash2,
 } from 'lucide-react';
-import { useSwipeable } from 'react-swipeable';
+import { motion, PanInfo } from 'motion/react';
 import { Product, ProductCategory, AppSettings } from '../types';
 import { triggerHaptic } from '../lib/storage';
 import { transliterateEnglishToHindi } from '../lib/transliteration';
@@ -30,63 +30,82 @@ const SwipeableProductCard: React.FC<SwipeableProductCardProps> = ({
   openEditModal,
   confirmDelete,
 }) => {
-  const handlers = useSwipeable({
-    onSwipedLeft: (e) => {
+  const handleDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    const threshold = 70;
+    if (info.offset.x > threshold) {
+      // Swiped right -> Delete
       triggerHaptic();
-      openEditModal(p, e.event as Event);
-    },
-    onSwipedRight: (e) => {
+      confirmDelete(event, p);
+    } else if (info.offset.x < -threshold) {
+      // Swiped left -> Edit
       triggerHaptic();
-      confirmDelete(e.event as Event, p);
-    },
-    trackMouse: false,
-    preventScrollOnSwipe: true,
-  });
+      openEditModal(p, event);
+    }
+  };
 
   return (
-    <div
-      {...handlers}
-      id={`product-card-${p.id}`}
-      onClick={() => onSelectAndCalculate(p)}
-      className={`w-full text-left p-4 rounded-3xl border transition-all duration-300 cursor-pointer active:scale-[0.99] flex items-center justify-between gap-3 shadow-botanical-sm hover:-translate-y-0.5 ${
-        isCurrent
-          ? 'bg-[#F2F0EB]/90 border-[#8C9A84] ring-2 ring-[#8C9A84]/30'
-          : 'bg-white hover:bg-[#F9F8F4] border-[#E6E2DA]'
-      }`}
-    >
-      <div className="flex-1 min-w-0 pointer-events-none">
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="font-serif-display font-bold text-base text-[#2D3A31] truncate">
-            {p.name}
-          </span>
-          {p.hindiName && (
-            <span className="text-xs text-[#7A8A7E] font-medium bg-[#F2F0EB] px-2 py-0.5 rounded-full border border-[#E6E2DA]">
-              {p.hindiName}
-            </span>
-          )}
+    <div className="relative w-full rounded-3xl overflow-hidden shadow-botanical-sm mb-3 bg-[#E6E2DA]">
+      {/* Background layer for Swipe Actions */}
+      <div className="absolute inset-0 flex items-center justify-between px-5 pointer-events-none">
+        {/* Left Side (Revealed on Right Swipe) -> Delete */}
+        <div className="flex items-center gap-2 text-rose-600 font-bold opacity-90">
+          <Trash2 className="w-5 h-5" />
+          <span className="text-sm font-sans tracking-wide">Delete</span>
         </div>
-        <div className="flex items-center gap-2 mt-1.5">
-          <span className="text-[10px] font-sans font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#F2F0EB] text-[#5B6D61] border border-[#E6E2DA]">
-            {p.category}
-          </span>
-          {isCurrent && (
-            <span className="text-[10px] font-bold text-[#8C9A84] flex items-center gap-0.5 uppercase tracking-widest">
-              <Check className="w-3 h-3" /> Selected
-            </span>
-          )}
+        {/* Right Side (Revealed on Left Swipe) -> Edit */}
+        <div className="flex items-center gap-2 text-[#5B6D61] font-bold opacity-90">
+          <span className="text-sm font-sans tracking-wide">Edit</span>
+          <Edit3 className="w-5 h-5" />
         </div>
       </div>
 
-      <div className="flex items-center gap-3 pointer-events-none">
-        <div className="text-right">
-          <span className="text-[10px] text-[#7A8A7E] font-bold uppercase tracking-widest block leading-none">
-            Rate / kg
-          </span>
-          <span className="font-serif text-xl font-bold text-[#2D3A31] tracking-tight">
-            ₹{p.pricePerKg}
-          </span>
+      <motion.div
+        drag="x"
+        dragConstraints={{ left: 0, right: 0 }}
+        dragElastic={0.5}
+        onDragEnd={handleDragEnd}
+        id={`product-card-${p.id}`}
+        onClick={() => onSelectAndCalculate(p)}
+        className={`relative w-full text-left p-4 rounded-3xl border transition-colors duration-200 cursor-pointer active:scale-[0.99] flex items-center justify-between gap-3 ${
+          isCurrent
+            ? 'bg-[#F2F0EB] border-[#8C9A84] ring-2 ring-[#8C9A84]/30'
+            : 'bg-white border-[#E6E2DA]'
+        }`}
+      >
+        <div className="flex-1 min-w-0 pointer-events-none">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="font-serif-display font-bold text-base text-[#2D3A31] truncate">
+              {p.name}
+            </span>
+            {p.hindiName && (
+              <span className="text-xs text-[#7A8A7E] font-medium bg-[#F9F8F4] px-2 py-0.5 rounded-full border border-[#E6E2DA]">
+                {p.hindiName}
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-2 mt-1.5">
+            <span className="text-[10px] font-sans font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#F9F8F4] text-[#5B6D61] border border-[#E6E2DA]">
+              {p.category}
+            </span>
+            {isCurrent && (
+              <span className="text-[10px] font-bold text-[#8C9A84] flex items-center gap-0.5 uppercase tracking-widest">
+                <Check className="w-3 h-3" /> Selected
+              </span>
+            )}
+          </div>
         </div>
-      </div>
+
+        <div className="flex items-center gap-3 pointer-events-none">
+          <div className="text-right">
+            <span className="text-[10px] text-[#7A8A7E] font-bold uppercase tracking-widest block leading-none">
+              Rate / kg
+            </span>
+            <span className="font-serif text-xl font-bold text-[#2D3A31] tracking-tight">
+              ₹{p.pricePerKg}
+            </span>
+          </div>
+        </div>
+      </motion.div>
     </div>
   );
 };

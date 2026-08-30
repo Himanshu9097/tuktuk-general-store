@@ -225,7 +225,7 @@ export function saveRecentProductId(id: string): void {
 export function triggerHaptic(): void {
   if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
     try {
-      navigator.vibrate(25);
+      navigator.vibrate(50);
     } catch {
       // Ignore vibration error if blocked by browser
     }
