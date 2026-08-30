@@ -185,7 +185,7 @@ export default function App() {
   };
 
   return (
-    <div className="h-[100dvh] w-full overflow-hidden bg-[#F9F8F4] text-[#2D3A31] flex flex-col font-sans antialiased selection:bg-[#C27B66] selection:text-white relative">
+    <div className="absolute inset-0 w-full overflow-hidden bg-[#F9F8F4] text-[#2D3A31] flex flex-col font-sans antialiased selection:bg-[#C27B66] selection:text-white">
       {/* Mandatory Tactile Paper Grain Overlay */}
       <div
         className="pointer-events-none fixed inset-0 z-50 opacity-[0.018]"
