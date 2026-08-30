@@ -4,11 +4,11 @@ import {
   Search, 
   Edit3, 
   Trash2, 
+  Check, 
+  X,
   Languages,
   Sparkles,
-  Leaf,
-  Edit3,
-  Trash2,
+  Leaf
 } from 'lucide-react';
 import { motion, PanInfo } from 'motion/react';
 import { Product, ProductCategory, AppSettings } from '../types';

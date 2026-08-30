@@ -15,7 +15,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenHistory,
 }) => {
   return (
-    <header className="sticky top-0 z-30 bg-[#F9F8F4]/90 backdrop-blur-md border-b border-[#E6E2DA] px-3.5 sm:px-6 py-3 transition-colors">
+    <header className="sticky top-0 z-30 bg-[#F9F8F4]/90 backdrop-blur-md border-b border-[#E6E2DA] px-3.5 sm:px-6 py-3 pt-safe transition-colors">
       <div className="max-w-5xl mx-auto flex items-center justify-between">
         {/* Brand / Logo */}
         <div className="flex items-center gap-3">
